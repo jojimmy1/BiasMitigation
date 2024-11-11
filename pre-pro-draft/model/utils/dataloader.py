@@ -2,6 +2,33 @@ import pandas as pd
 
 
 def dataloader(data, sensitive_feature):
+    if data.upper() == 'KIVA':
+        df = pd.read_csv("data/kiva_loans.csv", sep=',')
+        df = df.dropna()
+        # Remove rows where 'borrower_genders' is neither 'male' nor 'female'
+        df = df[df['borrower_genders'].isin(['male', 'female'])]
+        needed_feature = ['sector', 'partner_id', 'term_in_months', 'lender_count', 'repayment_interval']
+        # drop columns not in needed_feature, not in sensitive_feature and not 'loan_amount'
+        df = df.drop(columns=df.columns.difference(needed_feature + ['borrower_genders', 'country_code', 'loan_amount']))
+        # label encode for sector, country_code, borrower_genders, repayment_interval
+        df['sector'] = df['sector'].astype('category').cat.codes
+        df['country_code'] = df['country_code'].astype('category').cat.codes
+        df['borrower_genders'] = df['borrower_genders'].astype('category').cat.codes
+        df['repayment_interval'] = df['repayment_interval'].astype('category').cat.codes
+        # convert 'partner_id' and 'term_in_months' to int
+        df['partner_id'] = pd.to_numeric(df['partner_id'], errors='coerce').fillna(0).astype(int)
+        df['term_in_months'] = pd.to_numeric(df['term_in_months'], errors='coerce').fillna(0).astype(int)
+        df['loan_amount'] = pd.to_numeric(df['loan_amount'], errors='coerce').fillna(0).astype(int)
+        # Reset the index of the DataFrame after all filtering and modifications, and drop the old index
+        df = df.reset_index(drop=True)
+        numvars = ['term_in_months', 'lender_count']
+        Sensitive_Features = ['borrower_genders', 'country_code']
+        if sensitive_feature.lower() == 'borrower_genders':
+            target = df[['loan_amount', Sensitive_Features[0]]]
+            df = df.drop(columns=Sensitive_Features)
+            dataset = df.drop("loan_amount", axis=1)
+            categorical = dataset.columns.difference(numvars)
+            return (dataset, target, numvars, categorical)
     if data.upper() =='GERMAN':
         df = pd.read_csv("data/German.tsv", sep='\t')
         numvars = ['creditamount', 'duration', 'installmentrate', 'residencesince', 'existingcredits', 'peopleliable']
