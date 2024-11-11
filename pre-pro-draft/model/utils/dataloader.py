@@ -19,6 +19,10 @@ def dataloader(data, sensitive_feature):
         df['partner_id'] = pd.to_numeric(df['partner_id'], errors='coerce').fillna(0).astype(int)
         df['term_in_months'] = pd.to_numeric(df['term_in_months'], errors='coerce').fillna(0).astype(int)
         df['loan_amount'] = pd.to_numeric(df['loan_amount'], errors='coerce').fillna(0).astype(int)
+        # Convert loan_amount, if it is greater than 500, set it to 1, otherwise set it to 0
+        df['loan_amount'] = df['loan_amount'].apply(lambda x: 1 if x > 500 else 0)
+        # For testing purpose, randomly select 1000 rows from the DataFrame
+        df = df.sample(n=1000, random_state=42)
         # Reset the index of the DataFrame after all filtering and modifications, and drop the old index
         df = df.reset_index(drop=True)
         numvars = ['term_in_months', 'lender_count']
