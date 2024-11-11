@@ -2,6 +2,33 @@ import pandas as pd
 
 
 def dataloader(data, sensitive_feature):
+    if data.upper() == 'STUDENT':
+        df = pd.read_csv("data/student.csv", sep=',')
+        df = df.dropna()
+        needed_feature = ['Hours_Studied','Attendance','Parental_Involvement','Access_to_Resources','Extracurricular_Activities','Sleep_Hours','Previous_Scores', 'Tutoring_Sessions' ,'Family_Income','Teacher_Quality','Gender','Exam_Score']
+        # drop columns not in needed_feature
+        df = df.drop(columns=df.columns.difference(needed_feature))
+        numvars = ['Hours_Studied', 'Attendance', 'Sleep_Hours', 'Previous_Scores', 'Tutoring_Sessions']
+        # replace example score with 1 if it is greater than 67, otherwise set it to 0
+        df['Exam_Score'] = df['Exam_Score'].apply(lambda x: 1 if x > 67 else 0)
+        # label encode for non-numeric columns
+        df['Parental_Involvement'] = df['Parental_Involvement'].astype('category').cat.codes
+        df['Access_to_Resources'] = df['Access_to_Resources'].astype('category').cat.codes
+        df['Extracurricular_Activities'] = df['Extracurricular_Activities'].astype('category').cat.codes
+        df['Family_Income'] = df['Family_Income'].astype('category').cat.codes
+        df['Teacher_Quality'] = df['Teacher_Quality'].astype('category').cat.codes
+        df['Gender'] = df['Gender'].astype('category').cat.codes
+        # For testing purpose, randomly select 1000 rows from the DataFrame
+        df = df.sample(n=1000, random_state=42)
+        # Reset the index of the DataFrame after all filtering and modifications, and drop the old index
+        df = df.reset_index(drop=True)
+        Sensitive_Features = ['Gender', 'Family_Income']
+        if sensitive_feature.lower() == 'gender':
+            target = df[['Exam_Score', Sensitive_Features[0]]]
+            df = df.drop(columns=Sensitive_Features)
+            dataset = df.drop("Exam_Score", axis=1)
+            categorical = dataset.columns.difference(numvars)
+            return (dataset, target, numvars, categorical)        
     if data.upper() == 'KIVA':
         df = pd.read_csv("data/kiva_loans.csv", sep=',')
         df = df.dropna()

@@ -16,9 +16,9 @@ np.random.seed(42)
 
 
 if __name__=='__main__':
-    sensitive_feature = 'borrower_genders'
+    sensitive_feature = 'Gender'
     # DF ='german' #or 'adult'
-    DF ='KIVA'
+    DF ='STUDENT'
     data = dataloader(DF, sensitive_feature =sensitive_feature) # else adult
     dataset, target, numvars, categorical = data
     # Split data into train and test
