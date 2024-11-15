@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV, KFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.metrics import accuracy_score
-from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from model.utils.metrics import *
 from model.utils.dataloader import dataloader
 from model.LFR import LFR
@@ -13,7 +13,6 @@ import random
 
 random.seed(42)
 np.random.seed(42)
-
 
 if __name__=='__main__':
     sensitive_feature = 'Gender'
@@ -52,20 +51,21 @@ if __name__=='__main__':
     lfr.fit(X=x_train, y=y_train)
     Z_train, y_trainLFR = lfr.transform(X=x_train, y=y_train)
 
-
     bal_acc_arr_transf = []
     deo_arr_transf = []
     dao_arr_transf = []
     FairDEO = []
     FairDAO = []
     thresholds = np.linspace(0.01, 0.99, 100)
-    svc = SVC(kernel='linear')
-    svc.fit(Z_train, y_train[classification])
+    
+    # Using Logistic Regression instead of SVC
+    log_reg = LogisticRegression(max_iter=10000, solver='liblinear')
+    log_reg.fit(Z_train, y_train[classification])
 
     x_test = pipeline.transform(x_test)
     Z_test, y_testLFR = lfr.transform(X=x_test, y=y_test)
 
-    y_pred = svc.predict(Z_test)
+    y_pred = log_reg.predict(Z_test)
     ACC = accuracy_score(y_pred, y_test[classification])
     for thresh in thresholds:
         Y_pred = y_trainLFR.copy()
