@@ -50,7 +50,9 @@ def dataloader(data, sensitive_feature):
         df['Parental_Involvement'] = df['Parental_Involvement'].astype('category').cat.codes
         df['Access_to_Resources'] = df['Access_to_Resources'].astype('category').cat.codes
         df['Extracurricular_Activities'] = df['Extracurricular_Activities'].astype('category').cat.codes
-        df['Family_Income'] = df['Family_Income'].astype('category').cat.codes
+        # df['Family_Income'] = df['Family_Income'].astype('category').cat.codes
+        # if Family_Income is 'Low' or 'Medium', set it to 0, otherwise set it to 1
+        df['Family_Income'] = df['Family_Income'].apply(lambda x: 0 if x in ['Low', 'Medium'] else 1)
         df['Teacher_Quality'] = df['Teacher_Quality'].astype('category').cat.codes
         df['Gender'] = df['Gender'].astype('category').cat.codes
         # For testing purpose, randomly select 1000 rows from the DataFrame
@@ -63,7 +65,13 @@ def dataloader(data, sensitive_feature):
             df = df.drop(columns=Sensitive_Features)
             dataset = df.drop("Exam_Score", axis=1)
             categorical = dataset.columns.difference(numvars)
-            return (dataset, target, numvars, categorical)        
+            return (dataset, target, numvars, categorical)       
+        if sensitive_feature.lower() == 'family_income':
+            target = df[['Exam_Score', Sensitive_Features[1]]]
+            df = df.drop(columns=Sensitive_Features)
+            dataset = df.drop("Exam_Score", axis=1)
+            categorical = dataset.columns.difference(numvars)
+            return (dataset, target, numvars, categorical) 
     if data.upper() == 'KIVA':
         df = pd.read_csv("data/kiva_loans.csv", sep=',')
         df = df.dropna()
