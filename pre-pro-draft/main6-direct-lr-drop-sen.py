@@ -16,23 +16,38 @@ random.seed(42)
 np.random.seed(42)
 
 if __name__=='__main__':
+    # # Below for STUDENT
+    # # Load data
+    # df = pd.read_csv("data/student.csv", sep=',')
+    # df = df.dropna()
+    # # needed_feature = ['Hours_Studied','Attendance','Parental_Involvement','Access_to_Resources','Extracurricular_Activities','Sleep_Hours','Previous_Scores', 'Tutoring_Sessions' ,'Family_Income','Teacher_Quality','Gender','Exam_Score']
+    # needed_feature = ['Hours_Studied','Attendance','Parental_Involvement','Access_to_Resources','Extracurricular_Activities','Sleep_Hours','Previous_Scores', 'Tutoring_Sessions' ,'Teacher_Quality','Exam_Score']
+    # # drop columns not in needed_feature
+    # df = df.drop(columns=df.columns.difference(needed_feature))
+    # # # drop gender
+    # # df = df.drop(columns=['Gender'])
+    # # if exam score is greater than 67, then 1, else 0
+    # df['Exam_Score'] = df['Exam_Score'].apply(lambda x: 1 if x > 67 else 0)
+    # # df = df.sample(n=1000, random_state=42)
+    # # Reset the index of the DataFrame after all filtering and modifications, and drop the old index
+    # df = df.reset_index(drop=True)
+
+    # Below for KIVA
     # Load data
-    df = pd.read_csv("data/student.csv", sep=',')
+    df = pd.read_csv("data/kiva_loans.csv", sep=',')
     df = df.dropna()
-    needed_feature = ['Hours_Studied','Attendance','Parental_Involvement','Access_to_Resources','Extracurricular_Activities','Sleep_Hours','Previous_Scores', 'Tutoring_Sessions' ,'Family_Income','Teacher_Quality','Gender','Exam_Score']
+    needed_feature = ['sector', 'partner_id', 'term_in_months', 'lender_count', 'repayment_interval', 'loan_amount']
     # drop columns not in needed_feature
     df = df.drop(columns=df.columns.difference(needed_feature))
-    # drop gender
-    df = df.drop(columns=['Gender'])
-    # if exam score is greater than 67, then 1, else 0
-    df['Exam_Score'] = df['Exam_Score'].apply(lambda x: 1 if x > 67 else 0)
-    df = df.sample(n=1000, random_state=42)
+    # if loan amount is greater than 500, then 1, else 0
+    df['loan_amount'] = df['loan_amount'].apply(lambda x: 1 if x > 500 else 0)
+    # df = df.sample(n=1000, random_state=42)
     # Reset the index of the DataFrame after all filtering and modifications, and drop the old index
     df = df.reset_index(drop=True)
 
     # Define features and labels
-    X = df.drop(columns=['Exam_Score'])
-    y = df['Exam_Score']
+    X = df.drop(columns=['loan_amount'])
+    y = df['loan_amount']
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
