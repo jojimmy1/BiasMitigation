@@ -16,9 +16,9 @@ np.random.seed(42)
 
 
 if __name__=='__main__':
-    sensitive_feature = 'Gender'
+    sensitive_feature = 'dummy'
     # DF ='german' #or 'adult'
-    DF ='STUDENT'
+    DF ='STUDENT2'
     data = dataloader(DF, sensitive_feature =sensitive_feature) # else adult
     dataset, target, numvars, categorical = data
     # Split data into train and test
@@ -58,7 +58,6 @@ if __name__=='__main__':
     dao_arr_transf = []
     FairDEO = []
     FairDAO = []
-    CVScore_list = []
     thresholds = np.linspace(0.01, 0.99, 100)
     svc = SVC(kernel='linear')
     svc.fit(Z_train, y_train[classification])
@@ -68,18 +67,12 @@ if __name__=='__main__':
 
     y_pred = svc.predict(Z_test)
     ACC = accuracy_score(y_pred, y_test[classification])
-
-    # CV score calculation
-    cv_score = CVScore(y_pred, y_test, sensitive_feature, classification, 1, 0, [0, 1])
-    print("CV score: {}".format(cv_score))
-
     for thresh in thresholds:
         Y_pred = y_trainLFR.copy()
         Y_pred[classification] = np.array(Y_pred[classification] > thresh).astype(np.float64)
         ACC = accuracy_score(y_train[classification], Y_pred[classification])
         DEO = DifferenceEqualOpportunity(Y_pred[classification], y_train, sensitive_feature, classification, 1, 0, [0, 1])
         DAO = DifferenceAverageOdds(Y_pred[classification], y_train, sensitive_feature, classification, 1, 0, [0, 1])
-        CVScore_list.append(CVScore(Y_pred[classification], y_train, sensitive_feature, classification, 1, 0, [0, 1]))
         bal_acc_arr_transf.append(ACC)
         deo_arr_transf.append(DEO)
         dao_arr_transf.append(DAO)
@@ -92,9 +85,8 @@ if __name__=='__main__':
     plt.plot(thresholds, dao_arr_transf, marker='.')
     plt.plot(thresholds, FairDEO, marker='.')
     plt.plot(thresholds, FairDAO, marker='.')
-    plt.plot(thresholds, CVScore_list, marker='.')
     plt.ylim(0, 1)
-    plt.legend(["ACC", "DEO", "DAO", "F_DEO", "F_DAO", "CVScore"])
+    plt.legend(["ACC", "DEO", "DAO", "F_DEO", "F_DAO"])
     plt.xlabel("threshold")
     # plt.show()
     # save the plot instead of showing it
@@ -105,7 +97,6 @@ if __name__=='__main__':
     dao_arr_transf = []
     FairDEO = []
     FairDAO = []
-    CVScore_list = []
 
     for thresh in thresholds:
         Y_pred = y_testLFR.copy()
@@ -113,7 +104,6 @@ if __name__=='__main__':
         ACC = accuracy_score(y_test[classification], Y_pred[classification])
         DEO = DifferenceEqualOpportunity(Y_pred[classification], y_test, sensitive_feature, classification, 1, 0, [0, 1])
         DAO = DifferenceAverageOdds(Y_pred[classification], y_test, sensitive_feature, classification, 1, 0, [0, 1])
-        CVScore_list.append(CVScore(Y_pred[classification], y_test, sensitive_feature, classification, 1, 0, [0, 1]))
         bal_acc_arr_transf.append(ACC)
         deo_arr_transf.append(DEO)
         dao_arr_transf.append(DAO)
@@ -126,9 +116,8 @@ if __name__=='__main__':
     plt.plot(thresholds, dao_arr_transf, marker='.')
     plt.plot(thresholds, FairDEO, marker='.')
     plt.plot(thresholds, FairDAO, marker='.')
-    plt.plot(thresholds, CVScore_list, marker='.')
     plt.ylim(0, 1)
-    plt.legend(["ACC", "DEO", "DAO", "F_DEO", "F_DAO", "CVScore"])
+    plt.legend(["ACC", "DEO", "DAO", "F_DEO", "F_DAO"])
     plt.xlabel("threshold")
     # plt.show()
     # save the plot instead of showing it

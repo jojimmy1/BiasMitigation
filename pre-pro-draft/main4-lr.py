@@ -67,6 +67,7 @@ if __name__=='__main__':
 
     y_pred = log_reg.predict(Z_test)
     ACC = accuracy_score(y_pred, y_test[classification])
+    print("Test Accuracy: {}".format(ACC))
     for thresh in thresholds:
         Y_pred = y_trainLFR.copy()
         Y_pred[classification] = np.array(Y_pred[classification] > thresh).astype(np.float64)
