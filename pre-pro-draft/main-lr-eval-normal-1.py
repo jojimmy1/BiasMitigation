@@ -16,9 +16,11 @@ np.random.seed(42)
 
 if __name__=='__main__':
     # sensitive_feature = 'Gender'
-    sensitive_feature = 'Family_Income'
+    # sensitive_feature = 'Family_Income'
+    sensitive_feature = 'borrower_genders'
     # DF ='german' #or 'adult'
-    DF ='STUDENT'
+    # DF ='STUDENT'
+    DF ='KIVA'
     data = dataloader(DF, sensitive_feature =sensitive_feature) # else adult
     dataset, target, numvars, categorical = data
     # Split data into train and test
@@ -34,8 +36,11 @@ if __name__=='__main__':
     numeric_transformer = Pipeline(
         steps=[('scaler', StandardScaler())])
 
+    # categorical_transformer = Pipeline(
+    #     steps=[('onehot', OneHotEncoder(handle_unknown='ignore',sparse=False))])
+    
     categorical_transformer = Pipeline(
-        steps=[('onehot', OneHotEncoder(handle_unknown='ignore',sparse=False))])
+        steps=[('scaler', StandardScaler())])
 
     transformations = ColumnTransformer(
         transformers=[
@@ -61,11 +66,15 @@ if __name__=='__main__':
     
     # Using Logistic Regression instead of SVC
     log_reg = LogisticRegression(max_iter=10000, solver='liblinear')
+    # iterate over Z_train, set NaN, infinity or a value too large for dtype('float64') to 0. For label encoding
+    Z_train = np.nan_to_num(Z_train)
     log_reg.fit(Z_train, y_train[classification])
 
     x_test = pipeline.transform(x_test)
     Z_test, y_testLFR = lfr.transform(X=x_test, y=y_test)
 
+    # iterate over Z_test, set NaN, infinity or a value too large for dtype('float64') to 0. For label encoding
+    Z_test = np.nan_to_num(Z_test) 
     y_pred = log_reg.predict(Z_test)
 
     ACC = accuracy(y_test[classification], y_pred)

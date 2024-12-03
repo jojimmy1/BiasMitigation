@@ -56,7 +56,7 @@ def dataloader(data, sensitive_feature):
         df['Teacher_Quality'] = df['Teacher_Quality'].astype('category').cat.codes
         df['Gender'] = df['Gender'].astype('category').cat.codes
         # For testing purpose, randomly select 1000 rows from the DataFrame
-        df = df.sample(n=1000, random_state=42)
+        # df = df.sample(n=1000, random_state=42)
         # Reset the index of the DataFrame after all filtering and modifications, and drop the old index
         df = df.reset_index(drop=True)
         Sensitive_Features = ['Gender', 'Family_Income']
